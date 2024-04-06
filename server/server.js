@@ -1,11 +1,14 @@
 // server.js
 const app = require('express')();
 const http = require('http').createServer(app);
-const io = require('socket.io')(http);
-
+const io = require('socket.io')(server, {
+  cors: {
+    origin: 'https://localhost3000',
+  }
+});
+const cors = require('cors');
 // Data structure to store chat history for each room
 const chatHistory = {};
-
 io.on('connection', (socket) => {
   console.log('a user connected');
 
