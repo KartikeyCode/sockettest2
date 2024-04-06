@@ -1,7 +1,5 @@
-
 const express = require("express");
 const cors = require("cors"); // Import cors module
-
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
@@ -17,6 +15,7 @@ app.use(cors()); // Enable CORS for all routes in Express app
 
 io.on("connection", (socket) => {
   console.log("A user connected");
+  socket.emit("ID", socket.id);
 
   socket.on("join", (room) => {
     socket.join(room);
@@ -34,15 +33,17 @@ io.on("connection", (socket) => {
 
   socket.on("chat message", (data) => {
     const { room, message } = data;
-    console.log(`Message in room ${room}: ${message}`);
+    console.log(`Message in room ${room} from ${socket.id}: ${message}`);
 
+    const formattedMessage = `${socket.id}: ${message}`; // Format message with ID
     if (!chatHistory[room]) {
       chatHistory[room] = [];
     }
-    chatHistory[room].push(message);
+    chatHistory[room].push(formattedMessage);
 
-    io.to(room).emit("chat message", message);
+    io.to(room).emit("chat message", formattedMessage);
   });
+
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
