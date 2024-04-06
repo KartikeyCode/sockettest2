@@ -14,8 +14,7 @@ const chatHistory = {};
 app.use(cors()); // Enable CORS for all routes in Express app
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
-  socket.emit("ID", socket.id);
+  socket.emit("your id", socket.id);
 
   socket.on("join", (room) => {
     socket.join(room);
@@ -35,15 +34,13 @@ io.on("connection", (socket) => {
     const { room, message } = data;
     console.log(`Message in room ${room} from ${socket.id}: ${message}`);
 
-    const formattedMessage = `${socket.id}: ${message}`; // Format message with ID
     if (!chatHistory[room]) {
       chatHistory[room] = [];
     }
-    chatHistory[room].push(formattedMessage);
+    chatHistory[room].push({ id: socket.id, body: message });
 
-    io.to(room).emit("chat message", formattedMessage);
+    io.to(room).emit("chat message", { id: socket.id, body: message });
   });
-
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
